@@ -3,17 +3,24 @@ import numpy as np
 
 class SpanningSets(Scene):
     def construct(self):
-        # Create coordinate system
+        # Create coordinate system with reduced opacity
         plane = NumberPlane(
-            x_range=[-5, 5, 1],
+            x_range=[-10, 10, 1],
             y_range=[-5, 5, 1],
-            x_length=8,
+            x_length=16,
             y_length=8,
+            axis_config={"stroke_opacity": 0.5},
+            background_line_style={
+                "stroke_opacity": 0.3
+            }
         ).add_coordinates()
+
+        # Create a buffer space at the top for text
+        plane.shift(DOWN * 1.5)
         
         # Title
         title = Text("Understanding Spanning Sets", font_size=40)
-        title.to_edge(UP)
+        title.to_edge(UP, buff=0.5)
         
         # Initial setup
         self.play(Write(title))
@@ -22,14 +29,14 @@ class SpanningSets(Scene):
 
         # Example 1: B1 = {(1,0)}
         example1_text = Text("Example 1: B₁ = {(1,0)}", font_size=30)
-        example1_text.next_to(title, DOWN)
+        example1_text.next_to(title, DOWN, buff=0.5)
         
         # Vector (1,0)
         vector1 = Arrow(plane.coords_to_point(0, 0), 
                     plane.coords_to_point(1, 0), 
                     buff=0, 
                     color=BLUE)
-        vector1_label = MathTex("(1,0)").next_to(vector1, UP)
+        vector1_label = MathTex("(1,0)").next_to(vector1, UP, buff=0.2)
         
         self.play(Write(example1_text))
         self.play(Create(vector1), Write(vector1_label))
@@ -37,7 +44,8 @@ class SpanningSets(Scene):
 
         # Show scalar multiplication
         thief_point1 = Dot(plane.coords_to_point(7, 0), color=RED)
-        thief_label1 = Text("Thief (7,0)", font_size=25, color=RED).next_to(thief_point1, UP)
+        thief_label1 = Text("Thief (7,0)", font_size=25, color=RED)
+        thief_label1.next_to(thief_point1, UP, buff=0.2)
         
         stretched_vector = Arrow(plane.coords_to_point(0, 0), 
                             plane.coords_to_point(7, 0), 
@@ -53,7 +61,8 @@ class SpanningSets(Scene):
                     plane.coords_to_point(5, 0), 
                     color=YELLOW_A)
         reachable = Text("Can only reach points on x-axis!", 
-                        font_size=25).to_edge(DOWN)
+                        font_size=25)
+        reachable.to_edge(DOWN, buff=0.5)
         
         self.play(Create(line_x), Write(reachable))
         self.wait(2)
@@ -66,7 +75,7 @@ class SpanningSets(Scene):
 
         # Example 2: B2 = {(1,0), (0,1)}
         example2_text = Text("Example 2: B₂ = {(1,0), (0,1)}", font_size=30)
-        example2_text.next_to(title, DOWN)
+        example2_text.next_to(title, DOWN, buff=0.5)
         
         vector2_1 = Arrow(plane.coords_to_point(0, 0), 
                         plane.coords_to_point(1, 0), 
@@ -77,8 +86,8 @@ class SpanningSets(Scene):
                         buff=0, 
                         color=RED)
         
-        vector2_1_label = MathTex("(1,0)").next_to(vector2_1, DOWN)
-        vector2_2_label = MathTex("(0,1)").next_to(vector2_2, RIGHT)
+        vector2_1_label = MathTex("(1,0)").next_to(vector2_1, DOWN, buff=0.2)
+        vector2_2_label = MathTex("(0,1)").next_to(vector2_2, RIGHT, buff=0.2)
         
         self.play(Write(example2_text))
         self.play(
@@ -89,7 +98,8 @@ class SpanningSets(Scene):
 
         # Show how to reach point (5,2)
         thief_point2 = Dot(plane.coords_to_point(5, 2), color=RED)
-        thief_label2 = Text("Thief (5,2)", font_size=25, color=RED).next_to(thief_point2, UP)
+        thief_label2 = Text("Thief (5,2)", font_size=25, color=RED)
+        thief_label2.next_to(thief_point2, UP, buff=0.2)
         
         vector2_1_scaled = Arrow(plane.coords_to_point(0, 0), 
                             plane.coords_to_point(5, 0), 
@@ -108,7 +118,8 @@ class SpanningSets(Scene):
         
         # Show that we can reach any point
         span_text = Text("This set can reach ANY point in the plane!", 
-                        font_size=25).to_edge(DOWN)
+                        font_size=25)
+        span_text.to_edge(DOWN, buff=0.5)
         self.play(Write(span_text))
         self.wait(2)
         
@@ -121,13 +132,13 @@ class SpanningSets(Scene):
 
         # Example 3: B3 = {(2,1)}
         example3_text = Text("Example 3: B₃ = {(2,1)}", font_size=30)
-        example3_text.next_to(title, DOWN)
+        example3_text.next_to(title, DOWN, buff=0.5)
         
         vector3 = Arrow(plane.coords_to_point(0, 0), 
                     plane.coords_to_point(2, 1), 
                     buff=0, 
                     color=BLUE)
-        vector3_label = MathTex("(2,1)").next_to(vector3, UP)
+        vector3_label = MathTex("(2,1)").next_to(vector3, UP, buff=0.2)
         
         self.play(Write(example3_text))
         self.play(Create(vector3), Write(vector3_label))
@@ -135,7 +146,8 @@ class SpanningSets(Scene):
 
         # Show thief at unreachable point (3,4)
         thief_point3 = Dot(plane.coords_to_point(3, 4), color=RED)
-        thief_label3 = Text("Thief (3,4)", font_size=25, color=RED).next_to(thief_point3, UP)
+        thief_label3 = Text("Thief (3,4)", font_size=25, color=RED)
+        thief_label3.next_to(thief_point3, UP, buff=0.2)
         
         self.play(Create(thief_point3), Write(thief_label3))
         
@@ -146,7 +158,8 @@ class SpanningSets(Scene):
             color=YELLOW_A
         )
         unreachable = Text("Can only reach points on this line!", 
-                        font_size=25).to_edge(DOWN)
+                        font_size=25)
+        unreachable.to_edge(DOWN, buff=0.5)
         
         self.play(Create(line), Write(unreachable))
         self.wait(2)
