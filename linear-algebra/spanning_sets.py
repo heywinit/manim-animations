@@ -6,9 +6,9 @@ class SpanningSets(Scene):
         # Create coordinate system with reduced opacity
         plane = NumberPlane(
             x_range=[-10, 10, 1],
-            y_range=[-5, 5, 1],
+            y_range=[-4, 4, 1],
             x_length=16,
-            y_length=8,
+            y_length=6,
             axis_config={"stroke_opacity": 0.5},
             background_line_style={
                 "stroke_opacity": 0.3
@@ -153,8 +153,8 @@ class SpanningSets(Scene):
         
         # Show line of possible points
         line = Line(
-            plane.coords_to_point(-5, -2.5),
-            plane.coords_to_point(5, 2.5),
+            plane.coords_to_point(-10, -5),
+            plane.coords_to_point(10, 5),
             color=YELLOW_A
         )
         unreachable = Text("Can only reach points on this line!", 
@@ -164,17 +164,4 @@ class SpanningSets(Scene):
         self.play(Create(line), Write(unreachable))
         self.wait(2)
 
-        # Conclusion
-        self.play(
-            *[FadeOut(mob) for mob in self.mobjects]
-        )
-        
-        conclusion = Text(
-            "A set spans R² if it can reach any point in the plane\n" +
-            "through linear combinations of its vectors.",
-            font_size=30,
-            line_spacing=1.5
-        ).move_to(ORIGIN)
-        
-        self.play(Write(conclusion))
         self.wait(2)
