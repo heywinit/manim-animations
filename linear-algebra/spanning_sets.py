@@ -165,3 +165,108 @@ class SpanningSets(Scene):
         self.wait(2)
 
         self.wait(2)
+
+        # Clear for Example 4
+        self.play(
+            *[FadeOut(mob) for mob in [example3_text, vector3, vector3_label,
+                                    thief_point3, thief_label3, line, unreachable]]
+        )
+
+        # Example 4: B4 = {(1,1), (2,2), (-1,-1)}
+        example4_text = Text("Example 4: B₄ = {(1,1), (2,2), (-1,-1)}", font_size=30)
+        example4_text.next_to(title, DOWN, buff=0.5)
+        
+        vector4_1 = Arrow(plane.coords_to_point(0, 0), 
+                        plane.coords_to_point(1, 1), 
+                        buff=0, 
+                        color=BLUE)
+        vector4_2 = Arrow(plane.coords_to_point(0, 0), 
+                        plane.coords_to_point(2, 2), 
+                        buff=0, 
+                        color=RED)
+        vector4_3 = Arrow(plane.coords_to_point(0, 0), 
+                        plane.coords_to_point(-1, -1), 
+                        buff=0, 
+                        color=GREEN)
+        
+        vector4_1_label = MathTex("(1,1)").next_to(vector4_1, UP, buff=0.2)
+        vector4_2_label = MathTex("(2,2)").next_to(vector4_2, UP, buff=0.2)
+        vector4_3_label = MathTex("(-1,-1)").next_to(vector4_3, DOWN, buff=0.2)
+        
+        self.play(Write(example4_text))
+        self.play(
+            Create(vector4_1), Create(vector4_2), Create(vector4_3),
+            Write(vector4_1_label), Write(vector4_2_label), Write(vector4_3_label)
+        )
+        
+        # Show linear dependence
+        dependent_text = Text("These vectors are linearly dependent!\nThey all lie on the same line.", 
+                            font_size=25)
+        dependent_text.to_edge(DOWN, buff=0.5)
+        
+        line_dependent = Line(
+            plane.coords_to_point(-3, -3),
+            plane.coords_to_point(3, 3),
+            color=YELLOW_A
+        )
+        
+        self.play(Create(line_dependent), Write(dependent_text))
+        self.wait(2)
+
+        # Clear for Example 5
+        self.play(
+            *[FadeOut(mob) for mob in [example4_text, vector4_1, vector4_2, vector4_3,
+                                    vector4_1_label, vector4_2_label, vector4_3_label,
+                                    line_dependent, dependent_text]]
+        )
+
+        # Example 5: B5 = {(1,0), (0,1), (1,1)}
+        example5_text = Text("Example 5: B₅ = {(1,0), (0,1), (1,1)}", font_size=30)
+        example5_text.next_to(title, DOWN, buff=0.5)
+        
+        vector5_1 = Arrow(plane.coords_to_point(0, 0), 
+                        plane.coords_to_point(1, 0), 
+                        buff=0, 
+                        color=BLUE)
+        vector5_2 = Arrow(plane.coords_to_point(0, 0), 
+                        plane.coords_to_point(0, 1), 
+                        buff=0, 
+                        color=RED)
+        vector5_3 = Arrow(plane.coords_to_point(0, 0), 
+                        plane.coords_to_point(1, 1), 
+                        buff=0, 
+                        color=GREEN)
+        
+        vector5_1_label = MathTex("(1,0)").next_to(vector5_1, DOWN, buff=0.2)
+        vector5_2_label = MathTex("(0,1)").next_to(vector5_2, LEFT, buff=0.2)
+        vector5_3_label = MathTex("(1,1)").next_to(vector5_3, RIGHT, buff=0.2)
+        
+        self.play(Write(example5_text))
+        self.play(
+            Create(vector5_1), Create(vector5_2), Create(vector5_3),
+            Write(vector5_1_label), Write(vector5_2_label), Write(vector5_3_label)
+        )
+        
+        # Show that (1,1) is redundant
+        redundant_text = Text("The vector (1,1) is redundant!\nIt can be obtained as (1,0) + (0,1)", 
+                            font_size=25)
+        redundant_text.to_edge(DOWN, buff=0.5)
+        
+        # Show the combination
+        vector5_1_copy = Arrow(plane.coords_to_point(0, 0), 
+                            plane.coords_to_point(1, 0), 
+                            buff=0, 
+                            color=YELLOW)
+        vector5_2_copy = Arrow(plane.coords_to_point(1, 0), 
+                            plane.coords_to_point(1, 1), 
+                            buff=0, 
+                            color=YELLOW)
+        
+        self.play(Write(redundant_text))
+        self.play(
+            Create(vector5_1_copy),
+            Create(vector5_2_copy)
+        )
+        self.wait(2)
+
+        self.wait(2)
