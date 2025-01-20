@@ -1,67 +1,167 @@
 from manim import *
+import numpy as np
 
 class SpanningSets(Scene):
     def construct(self):
-        # Axes setup
-        axes = Axes(
-            x_range=[-10, 10, 1],
-            y_range=[-10, 10, 1],
-            axis_config={"include_numbers": True},
+        # Create coordinate system
+        plane = NumberPlane(
+            x_range=[-5, 5, 1],
+            y_range=[-5, 5, 1],
+            x_length=8,
+            y_length=8,
+        ).add_coordinates()
+        
+        # Title
+        title = Text("Understanding Spanning Sets", font_size=40)
+        title.to_edge(UP)
+        
+        # Initial setup
+        self.play(Write(title))
+        self.play(Create(plane))
+        self.wait()
+
+        # Example 1: B1 = {(1,0)}
+        example1_text = Text("Example 1: B₁ = {(1,0)}", font_size=30)
+        example1_text.next_to(title, DOWN)
+        
+        # Vector (1,0)
+        vector1 = Arrow(plane.coords_to_point(0, 0), 
+                    plane.coords_to_point(1, 0), 
+                    buff=0, 
+                    color=BLUE)
+        vector1_label = MathTex("(1,0)").next_to(vector1, UP)
+        
+        self.play(Write(example1_text))
+        self.play(Create(vector1), Write(vector1_label))
+        self.wait()
+
+        # Show scalar multiplication
+        thief_point1 = Dot(plane.coords_to_point(7, 0), color=RED)
+        thief_label1 = Text("Thief (7,0)", font_size=25, color=RED).next_to(thief_point1, UP)
+        
+        stretched_vector = Arrow(plane.coords_to_point(0, 0), 
+                            plane.coords_to_point(7, 0), 
+                            buff=0, 
+                            color=GREEN)
+        
+        self.play(Create(thief_point1), Write(thief_label1))
+        self.play(Transform(vector1, stretched_vector))
+        self.wait()
+        
+        # Show that we can only reach points on x-axis
+        line_x = Line(plane.coords_to_point(-5, 0), 
+                    plane.coords_to_point(5, 0), 
+                    color=YELLOW_A)
+        reachable = Text("Can only reach points on x-axis!", 
+                        font_size=25).to_edge(DOWN)
+        
+        self.play(Create(line_x), Write(reachable))
+        self.wait(2)
+        
+        # Clear for Example 2
+        self.play(
+            *[FadeOut(mob) for mob in [example1_text, vector1, vector1_label, 
+                                    thief_point1, thief_label1, line_x, reachable]]
         )
-        self.add(axes)
 
-        # Example 1: B1 = {(1, 0)}, Thief = (7, 0)
-        b1_vector = Vector([1, 0], color=BLUE).shift(ORIGIN)
-        thief1 = Dot(axes.coords_to_point(7, 0), color=RED)
-        thief1_label = MathTex("(7, 0)").next_to(thief1, UP)
+        # Example 2: B2 = {(1,0), (0,1)}
+        example2_text = Text("Example 2: B₂ = {(1,0), (0,1)}", font_size=30)
+        example2_text.next_to(title, DOWN)
+        
+        vector2_1 = Arrow(plane.coords_to_point(0, 0), 
+                        plane.coords_to_point(1, 0), 
+                        buff=0, 
+                        color=BLUE)
+        vector2_2 = Arrow(plane.coords_to_point(0, 0), 
+                        plane.coords_to_point(0, 1), 
+                        buff=0, 
+                        color=RED)
+        
+        vector2_1_label = MathTex("(1,0)").next_to(vector2_1, DOWN)
+        vector2_2_label = MathTex("(0,1)").next_to(vector2_2, RIGHT)
+        
+        self.play(Write(example2_text))
+        self.play(
+            Create(vector2_1), Create(vector2_2),
+            Write(vector2_1_label), Write(vector2_2_label)
+        )
+        self.wait()
 
-        self.play(GrowArrow(b1_vector), FadeIn(thief1), Write(thief1_label))
-        self.wait(1)
+        # Show how to reach point (5,2)
+        thief_point2 = Dot(plane.coords_to_point(5, 2), color=RED)
+        thief_label2 = Text("Thief (5,2)", font_size=25, color=RED).next_to(thief_point2, UP)
+        
+        vector2_1_scaled = Arrow(plane.coords_to_point(0, 0), 
+                            plane.coords_to_point(5, 0), 
+                            buff=0, 
+                            color=BLUE_A)
+        vector2_2_scaled = Arrow(plane.coords_to_point(5, 0), 
+                            plane.coords_to_point(5, 2), 
+                            buff=0, 
+                            color=RED_A)
+        
+        self.play(Create(thief_point2), Write(thief_label2))
+        self.play(
+            Transform(vector2_1, vector2_1_scaled),
+            Transform(vector2_2, vector2_2_scaled)
+        )
+        
+        # Show that we can reach any point
+        span_text = Text("This set can reach ANY point in the plane!", 
+                        font_size=25).to_edge(DOWN)
+        self.play(Write(span_text))
+        self.wait(2)
+        
+        # Clear for Example 3
+        self.play(
+            *[FadeOut(mob) for mob in [example2_text, vector2_1, vector2_2,
+                                    vector2_1_label, vector2_2_label,
+                                    thief_point2, thief_label2, span_text]]
+        )
 
-        # Scalar multiplication visualization
-        for scalar in range(1, 8):
-            scaled_vector = Vector([scalar, 0], color=GREEN).shift(ORIGIN)
-            self.play(Transform(b1_vector, scaled_vector), run_time=0.5)
+        # Example 3: B3 = {(2,1)}
+        example3_text = Text("Example 3: B₃ = {(2,1)}", font_size=30)
+        example3_text.next_to(title, DOWN)
+        
+        vector3 = Arrow(plane.coords_to_point(0, 0), 
+                    plane.coords_to_point(2, 1), 
+                    buff=0, 
+                    color=BLUE)
+        vector3_label = MathTex("(2,1)").next_to(vector3, UP)
+        
+        self.play(Write(example3_text))
+        self.play(Create(vector3), Write(vector3_label))
+        self.wait()
 
-        self.wait(1)
+        # Show thief at unreachable point (3,4)
+        thief_point3 = Dot(plane.coords_to_point(3, 4), color=RED)
+        thief_label3 = Text("Thief (3,4)", font_size=25, color=RED).next_to(thief_point3, UP)
+        
+        self.play(Create(thief_point3), Write(thief_label3))
+        
+        # Show line of possible points
+        line = Line(
+            plane.coords_to_point(-5, -2.5),
+            plane.coords_to_point(5, 2.5),
+            color=YELLOW_A
+        )
+        unreachable = Text("Can only reach points on this line!", 
+                        font_size=25).to_edge(DOWN)
+        
+        self.play(Create(line), Write(unreachable))
+        self.wait(2)
 
-        # Example 2: B2 = {(1, 0), (0, 1)}, Thief = (5, 2)
-        b1_vector = Vector([1, 0], color=BLUE).shift(ORIGIN)
-        b2_vector = Vector([0, 1], color=ORANGE).shift(ORIGIN)
-        thief2 = Dot(axes.coords_to_point(5, 2), color=RED)
-        thief2_label = MathTex("(5, 2)").next_to(thief2, UP)
-
-        self.play(FadeOut(b1_vector), FadeOut(thief1), FadeOut(thief1_label))
-        self.play(GrowArrow(b1_vector), GrowArrow(b2_vector), FadeIn(thief2), Write(thief2_label))
-        self.wait(1)
-
-        # Combine (1, 0) * 5 and (0, 1) * 2 to reach thief
-        b1_scaled = Vector([5, 0], color=GREEN)
-        b2_scaled = Vector([0, 2], color=PURPLE)
-        resultant_vector = Vector([5, 2], color=YELLOW)
-
-        self.play(Transform(b1_vector, b1_scaled), run_time=1)
-        self.play(Transform(b2_vector, b2_scaled), run_time=1)
-        self.play(GrowArrow(resultant_vector))
-        self.wait(1)
-
-        # Example 3: B3 = {(2, 1)}, Thief = (3, 4)
-        b3_vector = Vector([2, 1], color=BLUE).shift(ORIGIN)
-        thief3 = Dot(axes.coords_to_point(3, 4), color=RED)
-        thief3_label = MathTex("(3, 4)").next_to(thief3, UP)
-
-        self.play(FadeOut(b1_vector), FadeOut(b2_vector), FadeOut(thief2), FadeOut(thief2_label), FadeOut(resultant_vector))
-        self.play(GrowArrow(b3_vector), FadeIn(thief3), Write(thief3_label))
-        self.wait(1)
-
-        # Attempt scalar multiplication to reach the thief
-        for scalar in range(1, 5):
-            scaled_vector = Vector([2 * scalar, 1 * scalar], color=GREEN).shift(ORIGIN)
-            self.play(Transform(b3_vector, scaled_vector), run_time=0.5)
-
-        self.wait(1)
-
-        # Wrap up
-        no_catch_text = Text("Thief cannot be caught!", color=RED).to_edge(DOWN)
-        self.play(Write(no_catch_text))
+        # Conclusion
+        self.play(
+            *[FadeOut(mob) for mob in self.mobjects]
+        )
+        
+        conclusion = Text(
+            "A set spans R² if it can reach any point in the plane\n" +
+            "through linear combinations of its vectors.",
+            font_size=30,
+            line_spacing=1.5
+        ).move_to(ORIGIN)
+        
+        self.play(Write(conclusion))
         self.wait(2)
