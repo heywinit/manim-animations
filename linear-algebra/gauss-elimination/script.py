@@ -78,36 +78,30 @@ def gauss_jordan_inverse_with_steps(matrix):
     # Extract inverse matrix
     inverse = [[augmented[i][j] for j in range(n, 2*n)] for i in range(n)]
     return inverse
-
 def main():
     while True:
         matrix = []
-        print("Enter the matrix row by row (enter 'q' to quit):")
-        while True:
-            row_input = input("Enter row (comma-separated values) or 'q' to quit: ")
-            if row_input.lower() == 'q':
-                print("Exiting...")
-                return
-            
-            try:
-                row = list(map(Fraction, row_input.split(',')))
-                matrix.append(row)
-            except ValueError:
-                print("Invalid input. Please enter numeric values separated by commas.")
+        n = int(input("N> "))  # Ask for the size of the matrix
+        total_elements = n * n
+        
+        row_input = input(f"Row> ")  # Prompt for the entire row input
+        if row_input.lower() == 'q':
+            print("Exiting...")
+            return
+        
+        try:
+            elements = list(map(Fraction, row_input.split(',')))
+            if len(elements) != total_elements:
+                print(f"Please enter exactly {total_elements} elements for a {n}x{n} matrix.")
                 continue
             
-            if len(matrix) > 1 and len(matrix[-1]) != len(matrix[0]):
-                print("All rows must have the same number of columns. Please re-enter the last row.")
-                matrix.pop()
-                continue
-            
-            if len(matrix) > 0 and len(matrix[-1]) == 0:
-                print("Empty row detected. Please enter a valid row.")
-                matrix.pop()
-                continue
-            
-            if len(matrix) > 0 and len(matrix[-1]) == len(matrix[0]):
-                break  # Exit the inner loop if the row is valid and has the correct length
+            # Reshape the flat list into a 2D matrix
+            for i in range(n):
+                matrix.append(elements[i*n:(i+1)*n])
+        
+        except ValueError:
+            print("Invalid input. Please enter numeric values separated by commas.")
+            continue
 
         print("Input matrix:")
         print_matrix_frac(matrix, augmented=False)
