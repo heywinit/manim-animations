@@ -1,0 +1,31 @@
+Matrix 6:
+[  -2   4   6 ]
+[  -6  12  18 ]
+[  -2   4   6 ]
+
+
+Steps to find inverse using Gauss-Jordan elimination:
+Initial augmented matrix:
+[  -2   4   6 |   1   0   0 ]
+[  -6  12  18 |   0   1   0 ]
+[  -2   4   6 |   0   0   1 ]
+
+
+Step 1: Divide row 1 by -2
+[   1  -2  -3 | -1/2       0   0 ]
+[  -6  12  18 |   0   1   0 ]
+[  -2   4   6 |   0   0   1 ]
+
+
+Step 2: Subtract -6 times row 1 from row 2
+[   1  -2  -3 | -1/2       0   0 ]
+[   0   0   0 |  -3   1   0 ]
+[  -2   4   6 |   0   0   1 ]
+
+
+Step 3: Subtract -2 times row 1 from row 3
+[   1  -2  -3 | -1/2       0   0 ]
+[   0   0   0 |  -3   1   0 ]
+[   0   0   0 |  -1   0   1 ]
+
+Matrix is not invertible

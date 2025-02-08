@@ -1,5 +1,8 @@
 from fractions import Fraction
 import numpy as np
+import os
+from io import StringIO
+import sys
 
 def print_matrix_frac(matrix, augmented=True):
     """Print matrix with fractions. If augmented, prints with vertical separator."""
@@ -121,6 +124,48 @@ def gauss_jordan_inverse_with_steps(matrix):
     inverse = [[augmented[i][j] for j in range(n, 2 * n)] for i in range(n)]
     return inverse
 
+def ensure_output_directory():
+    """Create outputs directory if it doesn't exist."""
+    output_dir = os.path.join(os.path.dirname(__file__), 'outputs')
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    return output_dir
+
+def capture_output(func):
+    """Capture stdout output from a function."""
+    old_stdout = sys.stdout
+    string_io = StringIO()
+    sys.stdout = string_io
+    try:
+        result = func()
+        output = string_io.getvalue()
+        return output, result
+    finally:
+        sys.stdout = old_stdout
+
+def save_matrix_output(matrix_num, matrix, inverse):
+    """Save matrix and its inverse to a file."""
+    output_dir = ensure_output_directory()
+    output_file = os.path.join(output_dir, f'output{matrix_num}.txt')
+    
+    def process_matrix():
+        print(f"Matrix {matrix_num}:")
+        print_matrix_frac(matrix, augmented=False)
+        print("\nSteps to find inverse using Gauss-Jordan elimination:")
+        inverse_result = gauss_jordan_inverse_with_steps(matrix)
+        if inverse_result:
+            print("\nFinal inverse matrix:")
+            print_matrix_frac(inverse_result, augmented=False)
+        else:
+            print("Matrix is not invertible")
+    
+    output, _ = capture_output(process_matrix)
+    
+    with open(output_file, 'w') as f:
+        f.write(output)
+    
+    print(f"Results saved to {output_file}")
+
 def main():
     while True:
         print("\nAvailable matrices (1-7) or 'q' to quit:")
@@ -133,15 +178,8 @@ def main():
             matrix_num = int(choice)
             if 1 <= matrix_num <= 7:
                 matrix = get_predefined_matrix(matrix_num)
-                print(f"\nMatrix {matrix_num}:")
-                print_matrix_frac(matrix, augmented=False)
-                print("Finding inverse using Gauss-Jordan elimination:")
                 inverse = gauss_jordan_inverse_with_steps(matrix)
-                if inverse:
-                    print("\nFinal inverse matrix:")
-                    print_matrix_frac(inverse, augmented=False)
-                else:
-                    print("Matrix is not invertible")
+                save_matrix_output(matrix_num, matrix, inverse)
             else:
                 print("Please enter a number between 1 and 7")
         except ValueError:
