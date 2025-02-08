@@ -1,67 +1,81 @@
 import numpy as np
 
-def gauss_jordan_elimination(A, b=None):
-    """
-    Performs Gauss-Jordan elimination to solve a system of linear equations Ax = b.
-    
-    Parameters:
-    - A (list of lists or np.ndarray): Coefficient matrix (n x n).
-    - b (list or np.ndarray, optional): Right-hand side vector (n x 1). If None, the function will compute the inverse of A.
-
-    Returns:
-    - If b is provided: Solution vector x or a message indicating inconsistency.
-    - If b is None: Inverse of matrix A if it exists.
-    """
-    
-    A = np.array(A, dtype=float)  # Convert input to NumPy array for stability
-    n = len(A)
-    
-    if b is not None:
-        b = np.array(b, dtype=float).reshape(n, 1)  # Convert b to a column vector
-        augmented_matrix = np.hstack([A, b])  # Create augmented matrix
-    else:
-        augmented_matrix = np.hstack([A, np.eye(n)])  # Augment with identity matrix to find inverse
-
-    # Perform Gauss-Jordan elimination
-    for i in range(n):
-        # Pivoting: Find the maximum element in the current column for numerical stability
-        max_row = np.argmax(np.abs(augmented_matrix[i:, i])) + i
-        augmented_matrix[[i, max_row]] = augmented_matrix[[max_row, i]]  # Swap rows
-
-        # Check if the matrix is singular (zero pivot means no unique solution or no inverse)
-        if np.isclose(augmented_matrix[i, i], 0):
-            if b is not None:
-                return "No unique solution exists (dependent or inconsistent system)."
+def print_matrix(matrix, precision=3):
+    """Print matrix with specified precision."""
+    for row in matrix:
+        print('[', end=' ')
+        for elem in row:
+            if abs(elem) < 1e-10:  # Handle near-zero values
+                print(f"{0:8.{precision}f}", end=' ')
             else:
-                return "Matrix is singular and non-invertible."
+                print(f"{elem:8.{precision}f}", end=' ')
+        print(']')
+    print()
 
-        # Normalize the pivot row (make leading coefficient 1)
-        augmented_matrix[i] = augmented_matrix[i] / augmented_matrix[i, i]
-
-        # Eliminate other entries in the current column
+def gauss_jordan_inverse(matrix):
+    """
+    Find the inverse of a 3x3 matrix using Gauss-Jordan elimination.
+    Returns None if matrix is not invertible.
+    """
+    n = len(matrix)
+    # Create augmented matrix [A|I]
+    augmented = np.zeros((n, 2*n))
+    augmented[:n, :n] = matrix
+    augmented[:n, n:] = np.eye(n)
+    
+    # Convert to float for division operations
+    augmented = augmented.astype(float)
+    
+    # Gauss-Jordan elimination
+    for i in range(n):
+        # Find pivot
+        pivot = augmented[i][i]
+        if abs(pivot) < 1e-10:  # Check if matrix is singular
+            # Look for non-zero pivot in rows below
+            found_pivot = False
+            for j in range(i + 1, n):
+                if abs(augmented[j][i]) > 1e-10:
+                    # Swap rows
+                    augmented[[i, j]] = augmented[[j, i]]
+                    pivot = augmented[i][i]
+                    found_pivot = True
+                    break
+            if not found_pivot:
+                return None  # Matrix is not invertible
+        
+        # Divide row by pivot
+        augmented[i] = augmented[i] / pivot
+        
+        # Eliminate column
         for j in range(n):
             if i != j:
-                augmented_matrix[j] -= augmented_matrix[j, i] * augmented_matrix[i]
+                factor = augmented[j][i]
+                augmented[j] = augmented[j] - factor * augmented[i]
+    
+    # Extract inverse matrix
+    inverse = augmented[:, n:]
+    return inverse
 
-    # Extract results
-    if b is not None:
-        return augmented_matrix[:, -1]  # Return solution vector
+def main():
+    matrix1 = np.array([
+        [0, -1, -5],
+        [3, 8, -2],
+        [10, -3, 4]
+    ])
+    
+    # Test both matrices
+    print("Matrix 1:")
+    print_matrix(matrix1)
+    print("Inverse of Matrix 1:")
+    inverse1 = gauss_jordan_inverse(matrix1)
+    if inverse1 is not None:
+        print_matrix(inverse1)
+        # Verify result
+        print("Verification (should be identity matrix):")
+        print_matrix(np.dot(matrix1, inverse1))
     else:
-        return augmented_matrix[:, n:]  # Return inverse matrix
+        print("Matrix is not invertible")
+    
 
-
-# Example Usage
 if __name__ == "__main__":
-    # Example 1: Solving a system of equations
-    A = [[0, -1, -5], 
-         [3, 8, -2], 
-         [10, -3, 4]]
-
-    # b = [3, 3, 4]
-
-    # solution = gauss_jordan_elimination(A, b)
-    # print("Solution to Ax = b:", solution)
-
-    # Example 2: Finding the inverse of a matrix
-    A_inv = gauss_jordan_elimination(A)
-    print("Inverse of A:\n", A_inv)
+    main()
