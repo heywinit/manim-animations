@@ -1,4 +1,5 @@
 from fractions import Fraction
+import numpy as np
 
 def print_matrix_frac(matrix, augmented=True):
     """Print matrix with fractions. If augmented, prints with vertical separator."""
@@ -17,6 +18,48 @@ def print_matrix_frac(matrix, augmented=True):
                 print(f"{frac!s:8}", end=' ')
         print(']')
     print()
+
+def get_predefined_matrix(number):
+    """Returns one of the predefined matrices from the image."""
+    matrices = {
+        1: np.array([
+            [-2, -3, -4],
+            [5, -10, 8],
+            [1, -3, -8]
+        ]),
+        2: np.array([
+            [-3, -1, 4],
+            [-8, 13, 11],
+            [-5, -13, 11]
+        ]),
+        3: np.array([
+            [-13, -5, -20],
+            [4, -15, -8],
+            [13, -12, 8]
+        ]),
+        4: np.array([
+            [-7, 3, 12],
+            [-8, -2, -10],
+            [10, 12, 54]
+        ]),
+        5: np.array([
+            [-3, -13, 1],
+            [-10, 5, -2],
+            [7, -18, 3]
+        ]),
+        6: np.array([
+            [-2, 4, 6],
+            [-6, 12, 18],
+            [-2, 4, 6]
+        ]),
+        7: np.array([
+            [2, 1, -4],
+            [-8, -4, 16],
+            [2, 1, -4]
+        ])
+    }
+
+    return matrices.get(number)
 
 def gauss_jordan_inverse_with_steps(matrix):
     """
@@ -59,7 +102,7 @@ def gauss_jordan_inverse_with_steps(matrix):
         if pivot != 1:
             print(f"\nStep {step}: Divide row {i + 1} by {pivot}")
             for j in range(2 * n):
-                augmented[i][j] /= pivot  # Fix: Pivot division should be straightforward
+                augmented[i][j] /= pivot
             print_matrix_frac(augmented)
             step += 1
 
@@ -78,48 +121,31 @@ def gauss_jordan_inverse_with_steps(matrix):
     inverse = [[augmented[i][j] for j in range(n, 2 * n)] for i in range(n)]
     return inverse
 
-def get_square_matrix():
-    """Get a square matrix from user input."""
-    matrix = []
-    print("Enter a square matrix row by row (comma-separated values). Type 'q' to quit.")
-
-    while True:
-        row_input = input(f"Enter row {len(matrix) + 1}: ")
-        if row_input.lower() == 'q':
-            print("Exiting...")
-            return None
-
-        try:
-            row = list(map(Fraction, row_input.split(',')))
-            if len(matrix) > 0 and len(row) != len(matrix[0]):
-                print("All rows must have the same number of columns.")
-                continue
-            matrix.append(row)
-
-            # Ensure square matrix
-            if len(matrix) > 1 and len(matrix) == len(matrix[0]):
-                break  # Stop when a valid square matrix is entered
-
-        except ValueError:
-            print("Invalid input. Enter numeric values separated by commas.")
-
-    return matrix
-
 def main():
     while True:
-        matrix = get_square_matrix()
-        if matrix is None:
+        print("\nAvailable matrices (1-7) or 'q' to quit:")
+        choice = input("Enter matrix number or 'q': ")
+        
+        if choice.lower() == 'q':
             break
-
-        print("Input matrix:")
-        print_matrix_frac(matrix, augmented=False)
-        print("Finding inverse using Gauss-Jordan elimination:")
-        inverse = gauss_jordan_inverse_with_steps(matrix)
-        if inverse:
-            print("\nFinal inverse matrix:")
-            print_matrix_frac(inverse, augmented=False)
-        else:
-            print("Matrix is not invertible")
+            
+        try:
+            matrix_num = int(choice)
+            if 1 <= matrix_num <= 7:
+                matrix = get_predefined_matrix(matrix_num)
+                print(f"\nMatrix {matrix_num}:")
+                print_matrix_frac(matrix, augmented=False)
+                print("Finding inverse using Gauss-Jordan elimination:")
+                inverse = gauss_jordan_inverse_with_steps(matrix)
+                if inverse:
+                    print("\nFinal inverse matrix:")
+                    print_matrix_frac(inverse, augmented=False)
+                else:
+                    print("Matrix is not invertible")
+            else:
+                print("Please enter a number between 1 and 7")
+        except ValueError:
+            print("Invalid input. Please enter a number between 1 and 7 or 'q' to quit")
 
 if __name__ == "__main__":
     main()
