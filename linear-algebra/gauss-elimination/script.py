@@ -3,6 +3,7 @@ import numpy as np
 import os
 from io import StringIO
 import sys
+import csv
 
 def print_matrix_frac(matrix, augmented=True):
     """Print matrix with fractions. If augmented, prints with vertical separator."""
@@ -166,24 +167,144 @@ def save_matrix_output(matrix_num, matrix, inverse):
     
     print(f"Results saved to {output_file}")
 
-def main():
-    while True:
-        print("\nAvailable matrices (1-7) or 'q' to quit:")
-        choice = input("Enter matrix number or 'q': ")
+def parse_matrix_string(matrix_str):
+    """Parse a string representation of a matrix into a numpy array."""
+    try:
+        # Split the string into rows
+        rows = [row.strip() for row in matrix_str.strip().split('\n')]
+        # Parse each row into numbers
+        matrix = []
+        for row in rows:
+            # Handle both space and comma-separated values
+            numbers = row.replace(',', ' ').split()
+            row_values = [float(num) for num in numbers]
+            matrix.append(row_values)
         
-        if choice.lower() == 'q':
+        # Validate matrix dimensions
+        if not matrix or not all(len(row) == len(matrix[0]) for row in matrix):
+            raise ValueError("Invalid matrix dimensions. All rows must have the same length.")
+        
+        return np.array(matrix)
+    except ValueError as e:
+        print(f"Error parsing matrix: {e}")
+        return None
+
+def read_matrix_from_file(file_path):
+    """Read matrix from a file (supports txt and csv formats)."""
+    try:
+        with open(file_path, 'r') as f:
+            if file_path.endswith('.csv'):
+                reader = csv.reader(f)
+                matrix = [[float(num) for num in row] for row in reader if row]
+            else:
+                content = f.read()
+                return parse_matrix_string(content)
+        
+        if not matrix:
+            raise ValueError("Empty matrix file")
+        
+        return np.array(matrix)
+    except Exception as e:
+        print(f"Error reading file: {e}")
+        return None
+
+def get_matrix_input():
+    """Interactive function to get matrix input from user."""
+    print("\nEnter matrix data in one of the following ways:")
+    print("1. Enter predefined matrix number (1-7)")
+    print("2. Enter path to a file containing the matrix")
+    print("3. Enter matrix rows manually")
+    print("4. Show example input formats")
+    print("q. Quit")
+    
+    choice = input("\nYour choice: ").strip().lower()
+    
+    if choice == 'q':
+        return None, True
+    
+    if choice == '4':
+        print("\nExample input formats:")
+        print("\n1. Space-separated values:")
+        print("1 2 3\n4 5 6\n7 8 9")
+        print("\n2. Comma-separated values (CSV):")
+        print("1,2,3\n4,5,6\n7,8,9")
+        print("\n3. File format: Same as above, saved in .txt or .csv")
+        return get_matrix_input()
+    
+    if choice == '1':
+        try:
+            matrix_num = int(input("Enter matrix number (1-7): "))
+            if 1 <= matrix_num <= 7:
+                return get_predefined_matrix(matrix_num), False
+            print("Invalid matrix number. Please enter a number between 1 and 7.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+        return get_matrix_input()
+    
+    if choice == '2':
+        file_path = input("Enter the path to your matrix file: ").strip()
+        if not os.path.isabs(file_path):
+            # Make path relative to script directory
+            file_path = os.path.join(os.path.dirname(__file__), file_path)
+        matrix = read_matrix_from_file(file_path)
+        if matrix is not None:
+            return matrix, False
+        return get_matrix_input()
+    
+    if choice == '3':
+        print("\nEnter matrix rows (one row per line, numbers separated by spaces)")
+        print("Press Enter twice when done:")
+        rows = []
+        while True:
+            line = input()
+            if not line and rows:  # Empty line and we have some rows
+                break
+            if line:  # Non-empty line
+                rows.append(line)
+        
+        if rows:
+            matrix = parse_matrix_string('\n'.join(rows))
+            if matrix is not None:
+                return matrix, False
+        
+        return get_matrix_input()
+    
+    print("Invalid choice. Please try again.")
+    return get_matrix_input()
+
+def main():
+    print("Welcome to Matrix Inverse Calculator using Gauss-Jordan Elimination")
+    print("===============================================================")
+    
+    while True:
+        matrix, should_quit = get_matrix_input()
+        
+        if should_quit:
+            print("\nGoodbye!")
             break
             
-        try:
-            matrix_num = int(choice)
-            if 1 <= matrix_num <= 7:
-                matrix = get_predefined_matrix(matrix_num)
-                inverse = gauss_jordan_inverse_with_steps(matrix)
-                save_matrix_output(matrix_num, matrix, inverse)
+        if matrix is not None:
+            print("\nInput matrix:")
+            print_matrix_frac(matrix, augmented=False)
+            
+            if matrix.shape[0] != matrix.shape[1]:
+                print("Error: Matrix must be square to have an inverse.")
+                continue
+                
+            inverse = gauss_jordan_inverse_with_steps(matrix)
+            
+            if inverse is None:
+                print("This matrix is not invertible.")
             else:
-                print("Please enter a number between 1 and 7")
-        except ValueError:
-            print("Invalid input. Please enter a number between 1 and 7 or 'q' to quit")
+                print("\nInverse found successfully!")
+                
+            # Ask if user wants to save the results
+            save = input("\nDo you want to save the results? (y/n): ").lower().strip()
+            if save == 'y':
+                output_num = 1
+                while os.path.exists(os.path.join(ensure_output_directory(), f'output{output_num}.txt')):
+                    output_num += 1
+                save_matrix_output(output_num, matrix, inverse)
 
 if __name__ == "__main__":
     main()
